@@ -69,8 +69,8 @@ function AddLocationModal() {
     <Dialog>
       {/* 버튼을 클릭하면 모달 열림 */}
       <DialogTrigger asChild>
-        <Button className="">
-          <AiOutlinePlus className="" />
+      <Button className="bg-gray-900 bg-opacity-80 border border-gray-600 rounded-sm hover:bg-gray-800 hover:bg-opacity-80 hover:border-gray-500">
+      <AiOutlinePlus className="" />
         </Button>
       </DialogTrigger>
 

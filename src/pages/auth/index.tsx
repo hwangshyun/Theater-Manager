@@ -27,13 +27,14 @@ function Login() {
         type="email"
         placeholder="Email"
         value={email}
-        className="text-white"
+        className="text-black"
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
         value={password}
+        className="text-black"
         onChange={(e) => setPassword(e.target.value)}
       />
       <button type="submit" disabled={loading}>

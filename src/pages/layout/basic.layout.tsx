@@ -22,7 +22,7 @@ function BasicLayout() {
   return (
     <div className="flex flex-col min-h-screen text-white">
       {/* 헤더 (항상 상단 고정) */}
-      <header className="w-full  flex border-b border-gray-900 fixed top-0 bg-black bg-opacity-80 z-50 h-8  items-center">
+      <header className="w-full  flex border-b border-gray-800 fixed top-0 bg-black bg-opacity-80 z-50 h-8  items-center">
         {/* 사이드바 트리거 (햄버거 버튼) */}
         <Sidebar />
 
@@ -41,7 +41,7 @@ function BasicLayout() {
       </header>
 
       {/* 메인 콘텐츠 영역 (헤더 높이만큼 padding 추가) */}
-      <main className=" pt-8 pb-8">
+      <main className=" pt-10 pb-8">
         <Outlet />
       </main>
 

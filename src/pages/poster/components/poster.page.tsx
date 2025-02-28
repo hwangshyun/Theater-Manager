@@ -22,7 +22,7 @@ import AddLocationModal from "./add-location-modal";
 import LocationList from "./location-list";
 import { IoPrintOutline } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
-import { FaQuestion } from "react-icons/fa";
+import GuideModal from "./guide-modal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -60,8 +60,8 @@ function PosterList() {
   const [selectedPost, setSelectedPost] = useState<{
     title: string;
     content: string;
+    image: string | null;
   } | null>(null);
-
   const user = useAuthStore((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -239,7 +239,7 @@ function PosterList() {
       const { success } = await updatePosterLocation(
         slotId,
         selectedPost.title,
-        selectedPost.content
+        selectedPost.image ?? ""
       );
       if (success) fetchPosterSlots();
     } else {
@@ -247,17 +247,19 @@ function PosterList() {
       await deletePosterFromSlot(slotId);
     }
   }
-  const handlePostSubmit = (title: string, content: string) => {
+  const handlePostSubmit = (title: string, content: string, image?: string | null) => {
     console.log("🟢 PosterList의 handlePostSubmit 실행됨");
     console.log("받은 제목:", title);
     console.log("받은 내용:", content);
-
+    console.log("받은 이미지:", image);
+  
     if (!title.trim()) {
       alert("게시물 제목을 입력하세요.");
       return;
     }
-
-    setSelectedPost({ title, content });
+  
+    // null 또는 undefined일 경우 빈 문자열("")을 할당하여 오류 방지
+    setSelectedPost({ title, content, image: image ?? "" });
     setSelectedMovie(null);
   };
 
@@ -319,27 +321,21 @@ function PosterList() {
   return (
     <div className=" flex gap-4">
       {/* 🎬 현재 보유한 영화 목록 (선택 가능) */}
-      <div className="max-w-72 ml-4 ">
+      <div className="max-w-72 ml-4">
         <div className="flex flex-col rounded-sm">
-          <div className="flex gap-2 mb-1">
+          <div className="flex gap-2 mb-2">
             {/* 기타 게시물 추가 버튼 */}
             <AddPostModal onSubmit={handlePostSubmit} />
-
-            {/* 버튼 크기 통일 */}
 
             {/* 위치 추가 모달 */}
             <AddLocationModal />
             <Button
               onClick={handlePrint}
-              className="no-print  bg-gray-800 border border-gray-300"
+              className="no-print bg-gray-900 bg-opacity-80 border border-gray-600 rounded-sm hover:bg-gray-800 hover:bg-opacity-80 hover:border-gray-500"
             >
-              <IoPrintOutline className="" />
+              <IoPrintOutline />
             </Button>
-            <Button
-              className="no-print  bg-gray-900 border border-gray-700"
-            >
-              <FaQuestion className="text-gray-400" />
-            </Button>
+            <GuideModal />
           </div>
           <div className="flex flex-col items-center h-auto max-h-full">
             {movies.length === 0 ? (
