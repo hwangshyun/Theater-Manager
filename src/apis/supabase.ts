@@ -19,7 +19,6 @@ export async function addLocation(
   name: string,
   maxPosters: number,
   type: string,
-  orderNum: number
 ) {
   // 1️⃣ locations 테이블에 새로운 위치 추가
   const { data: location, error } = await supabase
@@ -30,7 +29,6 @@ export async function addLocation(
         name,
         max_posters: maxPosters,
         type,
-        order_num: orderNum,
       },
     ])
     .select()
@@ -73,7 +71,6 @@ export async function getLocations(userId: string) {
       .from("locations")
       .select("*")
       .eq("user_id", userId)
-      .order("order_num", { ascending: true });
 
     if (error) throw error;
     return { success: true, data };
@@ -85,13 +82,27 @@ export async function getLocations(userId: string) {
 
 export async function deleteLocation(locationId: string) {
   try {
+    // 1️⃣ 먼저 해당 위치에 연결된 모든 posterlocations 삭제
+    const { error: posterError } = await supabase
+      .from("posterlocations")
+      .delete()
+      .eq("location", locationId);
+
+    if (posterError) throw posterError;
+
+    console.log("✅ 포스터 슬롯 삭제 완료");
+
+    // 2️⃣ locations 테이블에서 위치 삭제
     const { error } = await supabase
       .from("locations")
       .delete()
       .eq("id", locationId);
 
     if (error) throw error;
-    return { success: true, message: "✅ 위치가 삭제되었습니다!" };
+
+    console.log("✅ 위치 삭제 완료");
+
+    return { success: true, message: "✅ 위치 및 포스터 슬롯이 삭제되었습니다!" };
   } catch (error) {
     console.error("❌ 위치 삭제 실패:", error);
     return { success: false, message: "위치를 삭제할 수 없습니다." };
@@ -166,31 +177,53 @@ export async function deletePosterLocation(slotId: string) {
   }
 }
 
-export async function swapLocationOrder(
-  userId: string,
-  locationId1: string,
-  order1: number,
-  locationId2: string,
-  order2: number
-) {
+export async function swapLocationOrder(firstId: string, secondId: string): Promise<boolean> {
   try {
-    const { error: error1 } = await supabase
+    // Step 1: 첫 번째 위치 데이터 가져오기 (전체 컬럼 포함)
+    const { data: firstData, error: firstError } = await supabase
       .from("locations")
-      .update({ order_num: order2 })
-      .eq("id", locationId1)
-      .eq("user_id", userId);
+      .select("*") // 모든 필드를 가져오기 위해 "*" 사용
+      .eq("id", firstId)
+      .single();
 
-    const { error: error2 } = await supabase
+    if (firstError || !firstData) {
+      console.error("❌ 첫 번째 위치 데이터를 가져오는 중 오류 발생:", firstError);
+      return false;
+    }
+
+    // Step 2: 두 번째 위치 데이터 가져오기 (전체 컬럼 포함)
+    const { data: secondData, error: secondError } = await supabase
       .from("locations")
-      .update({ order_num: order1 })
-      .eq("id", locationId2)
-      .eq("user_id", userId);
+      .select("*") // 모든 필드를 가져오기 위해 "*" 사용
+      .eq("id", secondId)
+      .single();
 
-    if (error1 || error2) throw error1 || error2;
+    if (secondError || !secondData) {
+      console.error("❌ 두 번째 위치 데이터를 가져오는 중 오류 발생:", secondError);
+      return false;
+    }
 
-    return { success: true };
+    // Step 3: order_num 값 교환
+    const firstOrderNum = firstData.order_num;
+    const secondOrderNum = secondData.order_num;
+
+    // Step 4: 필수 컬럼이 있는지 확인 후 upsert 수행
+    const { error: updateError } = await supabase
+      .from("locations")
+      .upsert([
+        { ...firstData, order_num: secondOrderNum }, // 첫 번째 데이터의 order_num을 변경
+        { ...secondData, order_num: firstOrderNum }, // 두 번째 데이터의 order_num을 변경
+      ]);
+
+    if (updateError) {
+      console.error("❌ order_num 변경 실패:", updateError);
+      return false;
+    }
+
+    console.log(`✅ 위치 변경 성공: ${firstId}(${secondOrderNum}) ↔ ${secondId}(${firstOrderNum})`);
+    return true;
   } catch (error) {
-    console.error("❌ 위치 순서 변경 실패:", error);
-    return { success: false };
+    console.error("❌ order_num 변경 중 오류 발생:", error);
+    return false;
   }
 }
