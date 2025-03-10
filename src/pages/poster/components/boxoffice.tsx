@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDailyBoxOffice } from "@/apis/movie";
+import { getDailyBoxOffice } from "@/apis/search-movie";
 import { fetchMovies } from "@/apis/tmdb";
 import { motion } from "framer-motion";
 

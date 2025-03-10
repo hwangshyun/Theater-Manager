@@ -32,6 +32,7 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<KobMovie | null>(null);
   const [count, setCount] = useState("");
+  const [movieTitle, setMovieTitle] = useState(selectedMovie?.movieNm || "");
   const [date, setDate] = useState("");
   const itemsPerPage = 10;
   const user = useAuthStore((state) => state.user);
@@ -44,6 +45,8 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
     if (selectedMovie) {
       setSelectedPoster(selectedMovie.posterUrl); // ✅ 기본 대표 포스터 설정
       loadAdditionalPosters(selectedMovie.movieCd);
+      setMovieTitle(selectedMovie.movieNm); // 영화 선택 시 초기값 설정
+
     }
   }, [selectedMovie]);
   const handlePosterSelection = (posterUrl: string) => {
@@ -73,11 +76,11 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
     try {
       // ✅ `searchMoviesWithKobis` 사용하여 TMDb 포스터까지 포함된 결과 가져오기
       const results = await searchMoviesWithKobis(searchTerm);
-
+      
       // ✅ 영진위 데이터와 TMDb 포스터 매핑
       const moviesWithPosters = results.map((movie) => ({
         movieNm: movie.title,
-        openDt: movie.release_date || "개봉일 미정",
+        openDt: movie.openDt || "개봉일 미정",
         movieCd: movie.id.toString(), // TMDb ID 사용
         posterUrl: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -112,12 +115,11 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
       const { data, error } = await supabase
         .from("movies")
         .insert({
-          title: selectedMovie.movieNm,
+          title: movieTitle,
           date: date || selectedMovie.openDt || "개봉일 미정",
           count: count || "0",
           status: "상영 예정",
           user_id: user.id,
-          id: selectedMovie.movieCd,
           posterurl: selectedPoster,
         })
         .select(); // 삽입된 데이터를 반환
@@ -217,7 +219,7 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
               )}
             </div>
           </div>
-          <h3 className="text-xl mb-2 mt-3">{selectedMovie.movieNm}</h3>
+          <Input type="text" value={selectedMovie.movieNm} onChange={(e) => setMovieTitle(e.target.value)} placeholder="{영화 제목 입력}" />
           <div className="flex flex-col gap-3 mt-6">
             <Input
               type="text"

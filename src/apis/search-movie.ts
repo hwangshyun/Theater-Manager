@@ -73,3 +73,4 @@ export async function getDailyBoxOffice(targetDt: string, itemPerPage: number = 
     throw error;
   }
 }
+

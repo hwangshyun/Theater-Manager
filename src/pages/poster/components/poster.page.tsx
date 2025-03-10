@@ -247,17 +247,21 @@ function PosterList() {
       await deletePosterFromSlot(slotId);
     }
   }
-  const handlePostSubmit = (title: string, content: string, image?: string | null) => {
+  const handlePostSubmit = (
+    title: string,
+    content: string,
+    image?: string | null
+  ) => {
     console.log("🟢 PosterList의 handlePostSubmit 실행됨");
     console.log("받은 제목:", title);
     console.log("받은 내용:", content);
     console.log("받은 이미지:", image);
-  
+
     if (!title.trim()) {
       alert("게시물 제목을 입력하세요.");
       return;
     }
-  
+
     // null 또는 undefined일 경우 빈 문자열("")을 할당하여 오류 방지
     setSelectedPost({ title, content, image: image ?? "" });
     setSelectedMovie(null);
@@ -409,6 +413,7 @@ function PosterList() {
             handleDeleteLocation={handleDeleteLocation}
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
+            isLoading={false}
           />
           <LocationList
             title="상영 예정"
@@ -419,6 +424,7 @@ function PosterList() {
             handleDeleteLocation={handleDeleteLocation}
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
+            isLoading={false}
           />
           <LocationList
             title="기타"
@@ -429,6 +435,7 @@ function PosterList() {
             handleDeleteLocation={handleDeleteLocation}
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
+            isLoading={false}
           />
         </div>
       </div>

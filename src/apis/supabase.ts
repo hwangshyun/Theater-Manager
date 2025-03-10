@@ -227,3 +227,21 @@ export async function swapLocationOrder(firstId: string, secondId: string): Prom
     return false;
   }
 }
+
+export const uploadImageToSupabase = async (file: File, userId: string) => {
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${Date.now()}.${fileExt}`;
+  const filePath = `offers/${userId}/${fileName}`; // ✅ 사용자별 디렉토리 생성
+
+  const {  error } = await supabase.storage
+    .from("offers")
+    .upload(filePath, file);
+
+  if (error) {
+    console.error("❌ 이미지 업로드 실패:", error);
+    return null;
+  }
+
+  // ✅ 업로드된 이미지의 URL 반환
+  return supabase.storage.from("offers").getPublicUrl(filePath).data.publicUrl;
+};

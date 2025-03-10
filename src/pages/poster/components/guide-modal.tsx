@@ -27,7 +27,7 @@ const guideSteps = [
     title: "두 번째!",
     content:
       "지점의 포스터 게시 위치를 추가하세요.\n게시 가능 포스터 개수를 설정하고, '상영 중' / '상영 예정' / '기타' 중에서 선택해주세요.",
-    image: "/step1.png",
+    image: "/step2.svg",
   },
   {
     title: "세 번째",

@@ -10,7 +10,7 @@ function Poster() {
   return (
     <>
   
-      <div className="flex">
+      <div className="flex px-20 py-10">
         {/* <MovieRating /> */}
         {/* <PosterLocation /> */}
         <PosterList />

@@ -48,14 +48,39 @@
 
 
 
-body {
+html, body {
   margin: 0;
-  background-image: url('/background.jpg');
-  background-size: cover;
-  background-color: rgba(0, 0, 0, 0.877);
-  background-blend-mode: multiply;
-  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
   font-family: 'NEXON Lv2 Gothic', sans-serif;
+  background-color: rgba(0, 0, 0, 0.75);
+  position: relative;
+  overflow: hidden;
+}
+
+.background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/IMAX-banner-2.jpg'); /* 배경 이미지 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  z-index: -2;
+}
+
+.blur-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(15px); /* 블러 효과 */
+  z-index: -1;
 }
 
 

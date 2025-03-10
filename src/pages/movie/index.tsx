@@ -51,7 +51,7 @@ function Movie() {
   };
 
   return (
-    <div className=" px-20">
+    <div className="px-20">
       <div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
