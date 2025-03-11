@@ -80,7 +80,8 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
       // ✅ 영진위 데이터와 TMDb 포스터 매핑
       const moviesWithPosters = results.map((movie) => ({
         movieNm: movie.title,
-        openDt: movie.openDt || "개봉일 미정",
+        openDt: movie.release_date || "개봉일 미정",
+        release_date: movie.release_date || "개봉일 미정",
         movieCd: movie.id.toString(), // TMDb ID 사용
         posterUrl: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -116,7 +117,7 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
         .from("movies")
         .insert({
           title: movieTitle,
-          date: date || selectedMovie.openDt || "개봉일 미정",
+          date: date || selectedMovie?.release_date || "개봉일 미정",
           count: count || "0",
           status: "상영 예정",
           user_id: user.id,

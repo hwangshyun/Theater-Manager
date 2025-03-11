@@ -25,3 +25,16 @@ export async function deleteMovie(id: string) {
 
   return true;
 }
+
+export async function getMoviesStatus() {
+  const { data, error } = await supabase
+    .from("movies")
+    .select("*");
+
+  if (error) {
+    console.error("Error fetching movies status:", error);
+    return [];
+  }
+
+  return data; 
+}
