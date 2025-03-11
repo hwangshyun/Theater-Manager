@@ -245,3 +245,4 @@ export const uploadImageToSupabase = async (file: File, userId: string) => {
   // ✅ 업로드된 이미지의 URL 반환
   return supabase.storage.from("offers").getPublicUrl(filePath).data.publicUrl;
 };
+

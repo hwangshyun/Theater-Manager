@@ -47,7 +47,7 @@ function renderButtons(
       key={label}
       size="sm"
       variant={variant as "ghost" | "destructive"}
-      className="hover:bg-gray-700 hover:text-white"
+      className="hover:bg-gray-700 hover:text-white py-1 px-2 rounded-sm"
       onClick={() =>
         newStatus === "삭제"
           ? deleteMovie(id)
@@ -86,7 +86,7 @@ function MovieList({ movies, updateMovieStatus, deleteMovie }: MovieListProps) {
   }
 
   return (
-    <div className="flex justify-around p-4 gap-3 h-full">
+    <div className="flex justify-around p-4 gap-3 h-full mb-8">
       {statusMovies.map((status) => {
         const totalCount = status.data.reduce(
           (sum, movie) => sum + (parseInt(movie.count || "0", 10) || 0),
@@ -94,8 +94,8 @@ function MovieList({ movies, updateMovieStatus, deleteMovie }: MovieListProps) {
         );
 
         return (
-          <div key={status.title} className="w-1/3">
-            <div className="rounded-md border border-gray-200 border-opacity-50 shadow-sm overflow-hidden">
+          <div key={status.title} className="w-1/3 ">
+            <div className="rounded-md border border-gray-500 border-opacity-50 shadow-sm overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -113,30 +113,37 @@ function MovieList({ movies, updateMovieStatus, deleteMovie }: MovieListProps) {
                     status.data.map((movie) => (
                       <TableRow
                         key={movie.id}
-                        className=" hover:bg-gray-600 border-b border-gray-200 border-opacity-50"
+                        className=" hover:bg-gray-600 border-b border-gray-500 border-opacity-50"
                       >
                         <TableCell className="text-left text-white w-3/4">
                           <p
-                            className="font-medium text-base cursor-pointer hover:font-bold inline-block"
+                            className="font-medium text-sm cursor-pointer  hover:font-bold inline-block duration-50"
                             onClick={() => openNaverSearch(movie.title)}
                           >
                             {movie.title}
                           </p>
-                          <p>{movie.date || "N/A"}</p>
-                          <p>{movie.count || "0"} 장</p>
+                          <p className="text-xs">{movie.date || "N/A"}</p>
+                          <p className="text-xs">{movie.count || "0"} 장</p>
                         </TableCell>
                         <TableCell className="text-right text-white w-1/12">
                           <img
-                            src={movie.posterurl || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}
+                            src={
+                              movie.posterurl ||
+                              "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
+                            }
                             alt={movie.title}
                             className="min-w-10 min-h-16 object-cover cursor-pointer"
                             onClick={() => {
-                              window.open(movie.posterurl || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png", "_blank");
+                              window.open(
+                                movie.posterurl ||
+                                  "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
+                                "_blank"
+                              );
                             }}
                           />
                         </TableCell>
                         <TableCell className="text-right text-white w-1/12">
-                          <div className="flex flex-col gap-1 select-none">
+                          <div className="flex flex-col  select-none">
                             {renderButtons(
                               movie.id,
                               movie.status as MovieStatus,
@@ -161,7 +168,7 @@ function MovieList({ movies, updateMovieStatus, deleteMovie }: MovieListProps) {
                   <TableRow>
                     <TableCell
                       colSpan={2}
-                      className="text-right font-normal text-white p-2 border-t border-gray-300 border-opacity-50 pointer-events-none"
+                      className="text-right font-normal text-white p-2  pointer-events-none"
                     >
                       총 {totalCount} 장
                     </TableCell>

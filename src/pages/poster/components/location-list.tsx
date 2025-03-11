@@ -29,6 +29,7 @@ interface LocationListProps {
   assignPosterToSlot: (slotId: string) => void;
   selectedMovie: Movie | null;
   isLoading: boolean;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void; // ⬅️ onClick 추가
 }
 
 function LocationList({
@@ -41,6 +42,7 @@ function LocationList({
   assignPosterToSlot,
   selectedMovie,
   isLoading,
+  onClick,
 }: LocationListProps) {
   const [movies, setMovies] = useState<Movie[]>([]);
   useEffect(() => {
@@ -81,7 +83,9 @@ function LocationList({
                           <div className="w-5 h-5 bg-gray-700 rounded animate-pulse"></div>
                         </div>
                       </p>
-                      <CardContent className="grid gap-2 grid-cols-3">
+                      <CardContent
+                        className="grid gap-2 grid-cols-3"
+                      >
                         {Array.from({ length: 3 }).map((_, i) => (
                           <LocationSkeleton key={i} />
                         ))}
@@ -98,6 +102,7 @@ function LocationList({
                   ${selectedLocation === locationId ? " border-green-800" : ""}
                   
                 `}
+                      onClick={onClick}
                     >
                       <p className="flex items-center justify-between text-sm mb-1 text-center mt-1">
                         {posters[0].location_name}
@@ -167,7 +172,7 @@ function LocationList({
                                   />
                                 </div>
                               ) : (
-                                <div className="w-full h-28 bg-gray-600 flex items-center justify-center text-xs rounded-t-sm">
+                                <div className="w-full h-full max-h-28 bg-gray-600 flex items-center justify-center text-xs rounded-t-sm">
                                   {selectedMovie ? "클릭하여 추가" : "없음"}
                                 </div>
                               )}

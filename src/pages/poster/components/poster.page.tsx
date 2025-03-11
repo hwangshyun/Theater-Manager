@@ -66,6 +66,22 @@ function PosterList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
 
+  useEffect(() => {
+    // 🎯 빈 공간 클릭 시 selectedMovie 초기화
+    const handleClickOutside = (event: MouseEvent) => {
+      const sidebar = document.getElementById("movie-list");
+      if (sidebar && sidebar.contains(event.target as Node)) return; // 🎬 영화 목록 내부 클릭 시 무시
+
+      setSelectedMovie(null); // 빈 공간 클릭 시 선택 해제
+    };
+
+    window.addEventListener("click", handleClickOutside);
+    
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   const printRef = useRef<HTMLDivElement>(null);
 
   // ✅ 프린트 핸들러 (한 페이지에 모든 데이터를 포함하여 인쇄)
@@ -262,7 +278,6 @@ function PosterList() {
       return;
     }
 
-    // null 또는 undefined일 경우 빈 문자열("")을 할당하여 오류 방지
     setSelectedPost({ title, content, image: image ?? "" });
     setSelectedMovie(null);
   };
@@ -323,11 +338,11 @@ function PosterList() {
     setSelectedLocation(null);
   }
   return (
-    <div className=" flex gap-4">
+    <div className=" flex gap-4 ml-4">
       {/* 🎬 현재 보유한 영화 목록 (선택 가능) */}
       <div className="max-w-72 ml-4">
-        <div className="flex flex-col rounded-sm">
-          <div className="flex gap-2 mb-2">
+        <div className="flex flex-col w-full max-w-1/6">
+          <div className="flex justify-between mb-2 gap-1">
             {/* 기타 게시물 추가 버튼 */}
             <AddPostModal onSubmit={handlePostSubmit} />
 
@@ -335,7 +350,7 @@ function PosterList() {
             <AddLocationModal />
             <Button
               onClick={handlePrint}
-              className="no-print bg-gray-900 bg-opacity-80 border border-gray-600 rounded-sm hover:bg-gray-800 hover:bg-opacity-80 hover:border-gray-500"
+              className=" no-print bg-gray-900 bg-opacity-80 border border-gray-600 rounded-sm hover:bg-gray-800 hover:bg-opacity-80 hover:border-gray-500"
             >
               <IoPrintOutline />
             </Button>
@@ -349,14 +364,17 @@ function PosterList() {
                 {paginatedMovies.map((movie) => (
                   <div
                     key={movie.id}
-                    onClick={() => setSelectedMovie(movie)}
-                    className={`border border-gray-600  min-h-40 bg-gray-600 flex flex-col items-center justify-center bg-opacity-40 rounded-sm cursor-pointer
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMovie(movie);
+                    }}
+                    className={`border border-gray-600 h-full  bg-gray-600 flex flex-col items-center justify-center bg-opacity-40 rounded-sm cursor-pointer
                 ${selectedMovie?.id === movie.id ? "border-2 border-white scale-105" : ""}`}
                   >
                     <img
                       src={movie.posterurl || ""}
                       alt={movie.title}
-                      className="max-h-40 object-cover rounded-sm"
+                      className="max-w-24 object-cover rounded-sm"
                     />
                     <p className="text-center text-xs min-w-12 max-w-20 text-gray-400 truncate">
                       {movie.title}
@@ -401,7 +419,7 @@ function PosterList() {
         </div>
       </div>
       {/* 🎭 포스터 슬롯 */}
-      <div className="flex flex-col gap-4 w-full">
+      <div className="flex w-full">
         <div ref={printRef}>
           {/* ✅ LocationList 3개를 포함하여 출력 */}
           <LocationList
@@ -414,6 +432,9 @@ function PosterList() {
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
             isLoading={false}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           />
           <LocationList
             title="상영 예정"
@@ -425,6 +446,9 @@ function PosterList() {
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
             isLoading={false}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           />
           <LocationList
             title="기타"
@@ -436,6 +460,9 @@ function PosterList() {
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
             isLoading={false}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           />
         </div>
       </div>
