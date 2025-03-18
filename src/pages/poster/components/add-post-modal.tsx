@@ -10,9 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { AiOutlineExport } from "react-icons/ai";
 import { FaUpload } from "react-icons/fa";
+import { uploadPostsToSupabase } from "@/apis/supabase";
 
 interface AddPostModalProps {
   onSubmit: (title: string, content: string, image?: string | null) => void;
+  
 }
 
 function convertFileToBase64(file: File): Promise<string> {
@@ -33,7 +35,7 @@ function AddPostModal({ onSubmit }: AddPostModalProps) {
     "이미지 파일을 선택하거나 복사 후 붙여넣으세요"
   );
   const [isCopied, setIsCopied] = useState<boolean>(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null); // ✅ 인터벌 추적
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const checkClipboardForImage = async () => {
     try {
@@ -96,14 +98,17 @@ function AddPostModal({ onSubmit }: AddPostModalProps) {
       alert("게시물 제목을 입력하세요.");
       return;
     }
-
+  
     let imageUrl = null;
     if (postImage) {
-      imageUrl = await convertFileToBase64(postImage);
+      imageUrl = await uploadPostsToSupabase(postImage); //
     }
-
-    onSubmit(postTitle, postContent, imageUrl);
-
+  
+    console.log("✅ 업로드된 이미지 URL:", imageUrl);
+  
+    onSubmit(postTitle, postContent, imageUrl); // 
+  
+    // ✅ 입력값 초기화
     setPostTitle("");
     setPostContent("");
     setPostImage(null);

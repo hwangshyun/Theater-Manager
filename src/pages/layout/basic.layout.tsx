@@ -1,7 +1,7 @@
 import { getUser } from "@/apis/auth";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { FaChevronUp } from "react-icons/fa";
+// import { FaChevronUp } from "react-icons/fa";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar";
 
@@ -25,14 +25,14 @@ function BasicLayout() {
      <Sidebar />
 
       {/* 메인 콘텐츠 영역 (헤더 높이만큼 padding 추가) */}
-      <main className="">
+      <main className="mx-auto w-full">
         <Outlet />
       </main>
 
       {/* 푸터 (항상 하단 고정) */}
-      <footer className="w-full bg-black bg-opacity-80 flex justify-center items-center h-8 fixed bottom-0 z-50">
+      {/* <footer className="w-full bg-black bg-opacity-80 flex justify-center items-center h-8 fixed bottom-0 z-50">
       <FaChevronUp />
-      </footer>
+      </footer> */}
     </div>
   );
 }

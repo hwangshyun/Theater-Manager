@@ -65,13 +65,15 @@ function PosterList() {
   const user = useAuthStore((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  
 
   useEffect(() => {
-    // 🎯 빈 공간 클릭 시 selectedMovie 초기화
+    // 빈 공간 클릭 시 초기화
     const handleClickOutside = (event: MouseEvent) => {
       const sidebar = document.getElementById("movie-list");
-      if (sidebar && sidebar.contains(event.target as Node)) return; // 🎬 영화 목록 내부 클릭 시 무시
+      if (sidebar && sidebar.contains(event.target as Node)) return; //  영화 목록 내부 클릭 시 무시
 
+      setSelectedPost(null);
       setSelectedMovie(null); // 빈 공간 클릭 시 선택 해제
     };
 
@@ -89,35 +91,72 @@ function PosterList() {
     if (printRef.current) {
       const printContents = printRef.current.innerHTML;
       const originalContents = document.body.innerHTML;
-
+  
       document.body.innerHTML = `
         <style>
           @page { 
-            size: A4 portrait; /* A4 세로 모드 강제 적용 */
-            margin: 0.2cm; 
+            size: A4 portrait; /* A4 세로 모드 */
+            margin: 0; /* ✅ 페이지 여백 제거 */
           }
-          * { font-family: Arial, sans-serif; }
-          .no-print { display: none !important; } /* 불필요한 UI 숨김 */
+  
+          /* ✅ 전체 페이지 내 모든 여백 및 패딩 제거 */
+          * { 
+            font-family: Arial, sans-serif; 
+            -webkit-print-color-adjust: exact; /* ✅ 색상 정확하게 출력 */
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.1 !important; /* ✅ 글자 간격 줄이기 */
+            font-size: 12px !important; /* ✅ 글자 크기 줄이기 */
+          }
+  
+          /* ✅ 모든 요소를 한 페이지에 맞게 출력 */
+          html, body {
+            overflow: hidden !important;
+            height: auto !important;
+          }
+  
+          .no-print { display: none !important; } /* ✅ 불필요한 UI 숨김 */
+  
+          /* ✅ 출력 레이아웃 최적화 */
           .print-container { 
             display: grid;
-             max-height: 40px; 
-            grid-template-columns: 1fr; /* 한 줄에 하나씩 배치 */
-            gap: 1px; 
-            justify-content: center; 
+            height: auto !important;
+            max-height: none !important; /* ✅ 페이지 나누기 방지 */
+            grid-template-columns: 1fr 1fr; /* ✅ 2열 레이아웃으로 공간 최적화 */
+            gap: 5px; /* ✅ 간격 최소화 */
+            justify-content: center;
           }
+  
+          /* ✅ 개별 카드가 한 페이지에서 분리되지 않도록 설정 */
           .print-card { 
-             max-height: 40px; 
-            page-break-inside: avoid; 
+            break-inside: avoid; /* ✅ 페이지 내부에서 나눠지지 않도록 설정 */
+            break-after: avoid; /* ✅ 다음 페이지로 넘어가지 않도록 설정 */
             text-align: center;
           }
-          .print-title { font-size: 5px; font-weight: bold; text-align: center; margin-bottom: 0px; }
-          .print-header { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 0px; }
-          img { height: auto; margin-bottom: 0px; }
+  
+          .print-title { 
+            font-size: 10px; 
+            font-weight: bold; 
+            text-align: center; 
+            margin-bottom: 5px;
+          }
+  
+          .print-header { 
+            text-align: center; 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 5px;
+          }
+  
+          img { 
+            height: auto; 
+            margin-bottom: 2px;
+            max-width: 100%; /* ✅ 이미지 크기 자동 조정 */
+          }
         </style>
-        <div class="print-header"></div>
         <div class="print-container">${printContents}</div>
       `;
-
+  
       window.print();
       document.body.innerHTML = originalContents;
       window.location.reload();
@@ -338,7 +377,7 @@ function PosterList() {
     setSelectedLocation(null);
   }
   return (
-    <div className=" flex gap-4 ml-4">
+    <div className=" flex gap-4 ml-12">
       {/* 🎬 현재 보유한 영화 목록 (선택 가능) */}
       <div className="max-w-72 ml-4">
         <div className="flex flex-col w-full max-w-1/6">
@@ -460,7 +499,7 @@ function PosterList() {
             assignPosterToSlot={assignPosterToSlot}
             selectedMovie={selectedMovie}
             isLoading={false}
-            onClick={(e) => {
+             onClick={(e) => {
               e.stopPropagation();
             }}
           />

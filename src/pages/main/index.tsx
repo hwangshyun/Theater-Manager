@@ -54,8 +54,8 @@ function MainPage() {
   return (
     <div className="w-full h-screen flex items-center justify-center">
       {/* 좌측 애니메이션 텍스트 */}
-      <img src="/adobe-express-qr-code.png" alt="" className="absolute top-24 left-24 size-16 object-cover z-0" />
-      <div className="flex flex-col gap-8 text-gray-300 text-6xl font-extrabold mr-80">
+      <img src="/adobe-express-qr-code.png" alt="" className="absolute top-24 left-24 size-16 object-cover z-0 max-sm:hidden" />
+      <div className="flex flex-col gap-8 text-gray-300 text-6xl font-extrabold mr-80 max-sm:hidden">
         {items.map((item, index) => (
           <motion.div
             key={index}
@@ -126,9 +126,8 @@ function MainPage() {
         onClick={() => navigate(item.link)}
         className="cursor-pointer border-none  flex flex-col items-center justify-center  bg-transparent rounded-lg bg-opacity-20  transition-all duration-50"
         variants={buttonVariants}
-        whileHover={{ scale: 1.1, backgroundColor: "transparent",  }} // ✅ 자연스러운 호버 효과
       >
-        <h1 className="text-gray-300 text-7xl font-extrabold">{item.label}</h1>
+        <h1 className="text-gray-300 text-5xl font-extrabold hover:text-white hover:scale-105 transition-all duration-300">{item.label}</h1>
       </motion.div>
     ))}
   </motion.div>

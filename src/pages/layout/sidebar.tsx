@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "@/apis/auth";
-import { MdHome, MdMovie, MdImage, MdLogout } from "react-icons/md"; // 아이콘 추가
+import { MdHome, MdMovie, MdImage, MdLogout } from "react-icons/md";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/components/lib/utils";
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -9,50 +11,82 @@ function Sidebar() {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-full bg-black ㅠㅐ transition-all duration-300 z-20 flex flex-col items-center
-        ${expanded ? "w-48" : "w-4"}`}
+      className={cn(
+        "fixed left-0 top-0 border-r border-gray-900 h-full bg-black flex flex-col pt-8 items-start transition-all duration-300 ease-in-out shadow-lg z-20",
+        expanded ? "w-36" : "w-10"
+      )}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      <nav className="flex flex-col h-full p-2 text-white gap-4 w-full">
-        
-        {/* 홈 버튼 */}
-        <button
-          className="hover:text-gray-300 flex items-center gap-3 p-2 w-full"
+      <nav className="flex flex-col gap-3 w-full items-start">
+        <SidebarItem
+          icon={<MdHome />}
+          label="홈"
           onClick={() => navigate("/")}
-        >
-          <MdHome className="w-" />
-          {expanded && <p className="text-lg">홈</p>}
-        </button>
-
-        {/* 영화 관리 버튼 */}
-        <button
-          className="hover:text-gray-300 flex items-center gap-3 p-2 w-full"
+          expanded={expanded}
+        />
+        <SidebarItem
+          icon={<MdMovie />}
+          label="영화 관리"
           onClick={() => navigate("/movie")}
-        >
-          <MdMovie className="text-2xl" />
-          {expanded && <p className="text-lg">영화 관리</p>}
-        </button>
-
-        {/* 포스터 관리 버튼 */}
-        <button
-          className="hover:text-gray-300 flex items-center gap-3 p-2 w-full"
+          expanded={expanded}
+        />
+        <SidebarItem
+          icon={<MdImage />}
+          label="포스터 관리"
           onClick={() => navigate("/poster")}
-        >
-          <MdImage className="text-2xl" />
-          {expanded && <p className="text-lg">포스터 관리</p>}
-        </button>
+          expanded={expanded}
+        />
 
-        {/* 로그아웃 버튼 */}
-        <button
-          className="flex items-center gap-3 text-red-400 hover:text-red-600 p-2 w-full mt-auto mb-10"
-          onClick={() => signOut()}
-        >
-          <MdLogout className="text-2xl" />
-          {expanded && <p className="text-lg">로그아웃</p>}
-        </button>
+        <div className="mt-auto w-full">
+          <SidebarItem
+            icon={<MdLogout className="text-red-400" />}
+            label="로그아웃"
+            onClick={signOut}
+            expanded={expanded}
+            className="text-red-400 hover:text-red-500"
+          />
+        </div>
       </nav>
     </div>
+  );
+}
+
+function SidebarItem({
+  icon,
+  label,
+  onClick,
+  expanded,
+  className,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  expanded: boolean;
+  className?: string;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      className={cn(
+        "relative flex items-center text-lg text-white hover:bg-gray-700 py-2 pl-2 rounded-md transition-all duration-300 ease-in-out w-full",
+        expanded ? "justify-start" : "justify-center",
+        className
+      )}
+      onClick={onClick}
+    >
+      {/* 아이콘 */}
+      <span className="text-xl flex-shrink-0">{icon}</span>
+      {/* 텍스트 (축소 시 숨김) */}
+      <span
+        className={cn(
+          "absolute left-10 text-base whitespace-nowrap opacity-0 transition-opacity duration-300 ease-in-out",
+          expanded && "opacity-100"
+        )}
+      >
+        {label}
+      </span>
+    </Button>
   );
 }
 

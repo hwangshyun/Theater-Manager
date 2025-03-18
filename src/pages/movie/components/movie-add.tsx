@@ -23,6 +23,8 @@ import {
 import { Tables } from "@/types/supabase";
 import Spinner from "@/components/ui/spinner";
 import { fetchMoviePosters, searchMoviesWithKobis } from "@/apis/tmdb";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2 } from "lucide-react";
 
 type MovieType = Tables<"movies">;
 function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
@@ -37,7 +39,9 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
   const itemsPerPage = 10;
   const user = useAuthStore((state) => state.user);
   const { toast } = useToast();
-  const [selectedPoster, setSelectedPoster] = useState<string | undefined>(undefined); // ✅ 선택한 대표 포스터
+  const [selectedPoster, setSelectedPoster] = useState<string | undefined>(
+    undefined
+  ); // ✅ 선택한 대표 포스터
 
   const [additionalPosters, setAdditionalPosters] = useState<string[]>([]); // ✅ 추가 포스터 상태
   const [loadingPosters, setLoadingPosters] = useState(false); // ✅ 추가 포스터 로딩 상태
@@ -46,13 +50,11 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
       setSelectedPoster(selectedMovie.posterUrl); // ✅ 기본 대표 포스터 설정
       loadAdditionalPosters(selectedMovie.movieCd);
       setMovieTitle(selectedMovie.movieNm); // 영화 선택 시 초기값 설정
-
     }
   }, [selectedMovie]);
   const handlePosterSelection = (posterUrl: string) => {
     setSelectedPoster(posterUrl); // ✅ 선택한 포스터를 대표 포스터로 변경
   };
-
 
   const loadAdditionalPosters = async (movieCd: string) => {
     setLoadingPosters(true);
@@ -76,7 +78,7 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
     try {
       // ✅ `searchMoviesWithKobis` 사용하여 TMDb 포스터까지 포함된 결과 가져오기
       const results = await searchMoviesWithKobis(searchTerm);
-      
+
       // ✅ 영진위 데이터와 TMDb 포스터 매핑
       const moviesWithPosters = results.map((movie) => ({
         movieNm: movie.title,
@@ -179,18 +181,22 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
               disabled={loading}
               className="bg-transparent hover:bg-gray-700 w-20"
             >
-              {loading ? <Spinner /> : "검색"}
+              {loading ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : (
+                "검색"
+              )}
             </Button>
           </div>
         </form>
       )}
 
       {selectedMovie ? (
-        <div>
+        <div className="">
           <div className="flex gap-2 max-h-[400px]">
             <img
-               src={selectedPoster || selectedMovie.posterUrl}
-               alt={selectedMovie.movieNm}
+              src={selectedPoster || selectedMovie.posterUrl}
+              alt={selectedMovie.movieNm}
               className="max-w-2/3 flex-1 h-[400px] mr-auto border border-gray-700 rounded-md "
             />
             <div className="flex-col gap-2 max-w-1/3 max-h-[400px] overflow-y-hidden border-b border-gray-700 rounded-md flex-1">
@@ -204,7 +210,7 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
               {/* ✅ 추가 포스터 리스트 */}
               <p className="text-gray-200 ml-1">포스터를 선택하세요</p>
               {additionalPosters.length > 0 ? (
-                <div className="flex-col h-[500px] overflow-y-auto border overflow-x-hidden border-gray-700 rounded-md">
+                <ScrollArea className="flex-col h-[500px] overflow-y-auto border overflow-x-hidden border-gray-700 rounded-md">
                   {additionalPosters.map((posterUrl, index) => (
                     <img
                       key={index}
@@ -214,32 +220,58 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
                       onClick={() => handlePosterSelection(posterUrl)}
                     />
                   ))}
-                </div>
+                </ScrollArea>
               ) : (
                 !loadingPosters && <p className="text-gray-500">포스터 없음</p>
               )}
             </div>
           </div>
-          <Input type="text" value={selectedMovie.movieNm} onChange={(e) => setMovieTitle(e.target.value)} placeholder="{영화 제목 입력}" />
           <div className="flex flex-col gap-3 mt-6">
-            <Input
-              type="text"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              placeholder="개봉일 입력"
-            />
-            <Input
-              type="number"
-              value={count}
-              onChange={(e) => setCount(e.target.value)}
-              placeholder="수량 입력"
-            />
+            {/* 영화 제목 입력 */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-500">
+              포스터가 여러 버전이라면, 제목을 구분해주세요. (예: 기생충 A, 기생충 B)
+              </label>
+              <Input
+                type="text"
+                value={movieTitle}
+                onChange={(e) => setMovieTitle(e.target.value)}
+                placeholder="영화 제목 입력"
+              />
+            </div>
+
+            {/* 개봉일 입력 */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-500">
+              지점 개봉일과 다르면, 수정해 주세요.
+              </label>
+              <Input
+                type="text"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                placeholder="개봉일 입력"
+              />
+            </div>
+
+            {/* 포스터 수량 입력 */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-500">
+                포스터 수량
+              </label>
+              <Input
+                type="number"
+                value={count}
+                onChange={(e) => setCount(e.target.value)}
+                placeholder="포스터 수량 입력"
+              />
+            </div>
+
             <div className="flex gap-2 mt-5">
               <Button
                 className="bg-transparent hover:bg-gray-700"
                 onClick={saveMovie}
               >
-                저장
+                추가
               </Button>
               <Button variant="ghost" onClick={resetForm}>
                 취소
@@ -249,14 +281,15 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
         </div>
       ) : (
         <>
-          <div className="overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead>영화 제목</TableHead>
-                  <TableHead>개봉일</TableHead>
-                </TableRow>
-              </TableHeader>
+          <Table>
+            <ScrollArea className="max-h-[400px] overflow-y-auto">
+              <TableRow className="hover:bg-transparent">
+                <TableHead>영화 제목</TableHead>
+                <TableHead>개봉일</TableHead>
+              </TableRow>
+
+              <TableHeader />
+
               <TableBody>
                 {paginatedMovies.map((movie) => (
                   <TableRow key={movie.movieCd} className="w-full">
@@ -289,8 +322,8 @@ function MovieAdd({ onAdd }: { onAdd: (newMovie: MovieType) => void }) {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </div>
+            </ScrollArea>
+          </Table>
 
           {movies.length > itemsPerPage && (
             <Pagination className="mt-2">

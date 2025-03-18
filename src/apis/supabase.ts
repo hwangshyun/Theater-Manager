@@ -18,7 +18,7 @@ export async function addLocation(
   userId: string,
   name: string,
   maxPosters: number,
-  type: string,
+  type: string
 ) {
   // 1️⃣ locations 테이블에 새로운 위치 추가
   const { data: location, error } = await supabase
@@ -70,7 +70,7 @@ export async function getLocations(userId: string) {
     const { data, error } = await supabase
       .from("locations")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", userId);
 
     if (error) throw error;
     return { success: true, data };
@@ -102,7 +102,10 @@ export async function deleteLocation(locationId: string) {
 
     console.log("✅ 위치 삭제 완료");
 
-    return { success: true, message: "✅ 위치 및 포스터 슬롯이 삭제되었습니다!" };
+    return {
+      success: true,
+      message: "✅ 위치 및 포스터 슬롯이 삭제되었습니다!",
+    };
   } catch (error) {
     console.error("❌ 위치 삭제 실패:", error);
     return { success: false, message: "위치를 삭제할 수 없습니다." };
@@ -177,7 +180,10 @@ export async function deletePosterLocation(slotId: string) {
   }
 }
 
-export async function swapLocationOrder(firstId: string, secondId: string): Promise<boolean> {
+export async function swapLocationOrder(
+  firstId: string,
+  secondId: string
+): Promise<boolean> {
   try {
     // Step 1: 첫 번째 위치 데이터 가져오기 (전체 컬럼 포함)
     const { data: firstData, error: firstError } = await supabase
@@ -187,7 +193,10 @@ export async function swapLocationOrder(firstId: string, secondId: string): Prom
       .single();
 
     if (firstError || !firstData) {
-      console.error("❌ 첫 번째 위치 데이터를 가져오는 중 오류 발생:", firstError);
+      console.error(
+        "❌ 첫 번째 위치 데이터를 가져오는 중 오류 발생:",
+        firstError
+      );
       return false;
     }
 
@@ -199,7 +208,10 @@ export async function swapLocationOrder(firstId: string, secondId: string): Prom
       .single();
 
     if (secondError || !secondData) {
-      console.error("❌ 두 번째 위치 데이터를 가져오는 중 오류 발생:", secondError);
+      console.error(
+        "❌ 두 번째 위치 데이터를 가져오는 중 오류 발생:",
+        secondError
+      );
       return false;
     }
 
@@ -208,19 +220,19 @@ export async function swapLocationOrder(firstId: string, secondId: string): Prom
     const secondOrderNum = secondData.order_num;
 
     // Step 4: 필수 컬럼이 있는지 확인 후 upsert 수행
-    const { error: updateError } = await supabase
-      .from("locations")
-      .upsert([
-        { ...firstData, order_num: secondOrderNum }, // 첫 번째 데이터의 order_num을 변경
-        { ...secondData, order_num: firstOrderNum }, // 두 번째 데이터의 order_num을 변경
-      ]);
+    const { error: updateError } = await supabase.from("locations").upsert([
+      { ...firstData, order_num: secondOrderNum }, // 첫 번째 데이터의 order_num을 변경
+      { ...secondData, order_num: firstOrderNum }, // 두 번째 데이터의 order_num을 변경
+    ]);
 
     if (updateError) {
       console.error("❌ order_num 변경 실패:", updateError);
       return false;
     }
 
-    console.log(`✅ 위치 변경 성공: ${firstId}(${secondOrderNum}) ↔ ${secondId}(${firstOrderNum})`);
+    console.log(
+      `✅ 위치 변경 성공: ${firstId}(${secondOrderNum}) ↔ ${secondId}(${firstOrderNum})`
+    );
     return true;
   } catch (error) {
     console.error("❌ order_num 변경 중 오류 발생:", error);
@@ -233,7 +245,7 @@ export const uploadImageToSupabase = async (file: File, userId: string) => {
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `offers/${userId}/${fileName}`; // ✅ 사용자별 디렉토리 생성
 
-  const {  error } = await supabase.storage
+  const { error } = await supabase.storage
     .from("offers")
     .upload(filePath, file);
 
@@ -246,3 +258,32 @@ export const uploadImageToSupabase = async (file: File, userId: string) => {
   return supabase.storage.from("offers").getPublicUrl(filePath).data.publicUrl;
 };
 
+export async function uploadPostsToSupabase(
+  file: File
+): Promise<string | null> {
+  try {
+    const fileExt = file.name.split(".").pop(); // 파일 확장자 추출
+    const fileName = `${Date.now()}.${fileExt}`; // 고유 파일명 생성
+    const filePath = `post-images/${fileName}`; // ✅ 스토리지 경로 설정
+
+    // 🔹 Supabase 스토리지에 파일 업로드
+    const { error } = await supabase.storage
+      .from("posts") // ✅ "posts" 스토리지 버킷에 업로드
+      .upload(filePath, file);
+
+    if (error) {
+      console.error("🚨 이미지 업로드 실패:", error);
+      return null;
+    }
+
+    // ✅ 업로드된 이미지의 퍼블릭 URL 반환
+    const { data: urlData } = supabase.storage
+      .from("posts")
+      .getPublicUrl(filePath);
+
+    return urlData.publicUrl; // ✅ URL 반환
+  } catch (error) {
+    console.error("🚨 이미지 업로드 중 오류 발생:", error);
+    return null;
+  }
+}
